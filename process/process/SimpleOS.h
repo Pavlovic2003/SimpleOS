@@ -23,21 +23,21 @@ typedef enum {
     TASK_RETRYING
 }TASK_EXIT_CODES;
 
-typedef enum {
-    BASIC = 0,
-    FAST_RETRYING,  // if function fails (returns 0) it will retry imideatelly until success or run out of tries
-    STUBBORN,       // repeats infinelly until success
-    BRUTE           // basically fast retrying stubborn
-}FUNCTYPES;
+enum {
+    PRIORITY_LOW = -10,
+    PRIORITY_NORMAL = 0,
+    PRIORITY_HIGH = 10,
+    PRIORITY_URGENT = 1000
+};
 
 
 typedef struct {
     long TaskCount;
 
     TaskFunc_t* TaskFunc;
-    FUNCTYPES* functype;
     long* TaskTime;
     long* TaskMaxTries;
+    int* TaskPriority;
 
     int* ERRbuffer;
     long ERRbufferSize;
@@ -50,13 +50,16 @@ typedef struct {
 } TaskList_struct;
 
 long Task_count(void);
-int Task_add(TaskFunc_t func, FUNCTYPES functype, long time, long MaxTries);
+int Task_add(TaskFunc_t func, int priority, long time, long MaxTries);
 int Task_remove(long index);
 int Task_execute();
 void Task_terminate();
 
 long Task_current_time_left();
 void Task_time_subtract();
+
+void TaskList_sort_priorities();
+int compare_priority(const void* a, const void* b);
 
 int kernel_init(long MaxTasksinput);
 void kernel_begin();
@@ -66,4 +69,6 @@ void kernel_continue();
 kernelStatus kernel_status();
 
 int kernel_bufferErr(int ERRcode);
-int kernel_getErrCode();
+int kernel_getErrCode(); 
+
+void print_Tasks();
